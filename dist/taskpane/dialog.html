@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON Content</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+<pre id="jsonContent"></pre>
+<script>
+    Office.onReady(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const json = urlParams.get('json');
+        document.getElementById('jsonContent').textContent = json;
+    });
+</script>
+</body>
+</html>
