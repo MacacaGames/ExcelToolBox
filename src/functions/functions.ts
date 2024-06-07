@@ -34,10 +34,12 @@ export function add(first: number, second: number): number {
  * @returns {string} The Json of the data.
  */
 export function tojson(datas: string): string {
-  return "bla";
+  const rows = datas.trim().split('\n');
+  const array = rows.map(row => row.split(','));
+  return array.toString();
 }
 
-async function dataArrayToJson(data: any[][]) {
+function dataArrayToJson(data: any[][]): string {
   const headers = data[0];
   const rows = data.slice(1);
 
@@ -61,9 +63,7 @@ async function dataArrayToJson(data: any[][]) {
     return obj;
   });
 
-  const jsonString = JSON.stringify(json, null, 2);
-
-  await openJsonDialog(jsonString);
+  return JSON.stringify(json, null, 2);
 }
 
 /**
