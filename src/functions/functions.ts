@@ -36,15 +36,15 @@ export function add(first: number, second: number): number {
 export function tojson(datas: string): string {
   const rows = datas.trim().split('\n');
   const array = rows.map(row => row.split(','));
-  return array.toString();
+  return dataArrayToJson(array);
 }
 
 function dataArrayToJson(data: any[][]): string {
   const headers = data[0];
   const rows = data.slice(1);
-
+  
   const json = rows.map(row => {
-    const obj = {};
+    const obj: { [key: string]: any } = {};
     headers.forEach((header, index) => {
       let value = row[index];
       if(value === "NoData_Int" || value === "NoData_Enum") {
@@ -57,6 +57,8 @@ function dataArrayToJson(data: any[][]): string {
         value = [];
       } else if (value === "NoData_String") {
         value = "";
+      } else if (!isNaN(value)) { // Convert numeric strings to numbers
+        value = Number(value);
       }
       obj[header] = value;
     });
