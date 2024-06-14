@@ -16,7 +16,7 @@ Office.onReady(() => {
   document.getElementById("insertNoDataEnumButton").onclick = insertNoDataEnum;
   document.getElementById("insertNoDataBoolButton").onclick = insertNoDataBool;
   document.getElementById("insertNoDataArrayButton").onclick = insertNoDataArray;
-  document.getElementById("insertNoDataStringButton").onclick = insertNoDataString;
+  document.getElementById("insertNoDataTextButton").onclick = insertNoDataText;
 });
 
 async function selectRangeToJson() {
@@ -76,7 +76,7 @@ async function dataArrayToJson(data: any[][]) {
         value = {};
       } else if (value === "NoData_Array") {
         value = [];
-      } else if (value === "NoData_String") {
+      } else if (value === "NoData_Text") {
         value = "";
       }
       obj[header] = value;
@@ -121,8 +121,8 @@ async function insertNoDataArray() {
   await insertData("NoData_Array");
 }
 
-async function insertNoDataString() {
-  await insertData("NoData_String");
+async function insertNoDataText() {
+  await insertData("NoData_Text");
 }
 
 async function insertData(data: any) {

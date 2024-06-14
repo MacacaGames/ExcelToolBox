@@ -55,7 +55,7 @@ function dataArrayToJson(data: any[][]): string {
         value = {};
       } else if (value === "NoData_Array") {
         value = [];
-      } else if (value === "NoData_String") {
+      } else if (value === "NoData_Text") {
         value = "";
       } else if (!isNaN(value)) { // Convert numeric strings to numbers
         value = Number(value);
