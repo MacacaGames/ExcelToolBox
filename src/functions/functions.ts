@@ -65,7 +65,7 @@ function dataArrayToJson(data: any[][]): string {
     return obj;
   });
 
-  return JSON.stringify(json, null, 2);
+  return JSON.stringify(json);
 }
 
 /**
