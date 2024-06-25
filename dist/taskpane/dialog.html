@@ -15,12 +15,15 @@
     </style>
 </head>
 <body>
-<pre id="jsonContent"></pre>
+<div id="content">Loading...</div>
 <script>
     Office.onReady(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const json = urlParams.get('json');
-        document.getElementById('jsonContent').textContent = json;
+        const jsonString = localStorage.getItem('json');
+        if (jsonString) {
+            document.getElementById('jsonContent').textContent = jsonString;
+        } else {
+            document.getElementById('jsonContent').textContent = ('No JSON string found in Local Storage');
+        }
     });
 </script>
 </body>

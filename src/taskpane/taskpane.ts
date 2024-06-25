@@ -30,12 +30,12 @@ async function selectRangeToJson() {
     
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const range = sheet.getRange(rangeInput);
-      
-      range.load("values");
+      const excelRange = sheet.getRange(rangeInput);
+
+      excelRange.load("values");
       await context.sync();
 
-      const data = range.values;
+      const data = excelRange.values;
       await dataArrayToJson(data);
     });
   } catch (error) {
@@ -47,12 +47,11 @@ async function selectWholeSheetToJson() {
   try {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const range = sheet.getUsedRange();
-      
-      range.load("values");
+      const excelRange = sheet.getUsedRange();
+      excelRange.load("values");
       await context.sync();
       
-      const data = range.values;
+      const data = excelRange.values;
       await dataArrayToJson(data);
     });
   } catch (error) {
@@ -64,34 +63,52 @@ async function dataArrayToJson(data: any[][]) {
   const headers = data[0];
   const rows = data.slice(1);
 
-  const json = rows.map(row => {
-    const obj = {};
-    headers.forEach((header, index) => {
-      let value = row[index];
-      if(value === "NoData_Int" || value === "NoData_Enum") {
-        value = 0;
-      } else if (value === "NoData_Bool") {
-        value = false;
-      } else if (value === "NoData_Json") {
-        value = {};
-      } else if (value === "NoData_Array") {
-        value = [];
-      } else if (value === "NoData_Text") {
-        value = "";
-      }
-      obj[header] = value;
+  let jsonArray = [];
+
+  for (let i = 0; i < rows.length; i += 50) {
+    const batch = rows.slice(i, i + 50);
+    const jsonBatch = batch.map(row => {
+      const obj = {};
+      headers.forEach((header, index) => {
+        let value = row[index];
+        if(value === "NoData_Int" || value === "NoData_Enum") {
+          value = 0;
+        } else if (value === "NoData_Bool") {
+          value = false;
+        } else if (value === "NoData_Json") {
+          value = {};
+        } else if (value === "NoData_Array") {
+          value = [];
+        } else if (value === "NoData_Text") {
+          value = "";
+        } else {
+          try {
+            const parsedValue = JSON.parse(value);
+            if (typeof parsedValue === 'object') {
+              value = parsedValue;
+            }
+          } catch (e) {}
+        }
+        obj[header] = value;
+      });
+      return obj;
     });
-    return obj;
-  });
 
-  const jsonString = JSON.stringify(json, null, 2);
+    jsonArray = jsonArray.concat(jsonBatch);
 
+    // Intermediate sync to keep the UI responsive
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+
+  const jsonString = JSON.stringify(jsonArray, null, 2);
   await openJsonDialog(jsonString);
 }
 
 async function openJsonDialog(jsonString: string) {
+  localStorage.setItem('json', jsonString);
+
   Office.context.ui.displayDialogAsync(
-      location.origin + '/taskpane/dialog.html?json=' + encodeURIComponent(jsonString),
+      location.origin + '/taskpane/dialog.html',
       { height: 50, width: 50 },
       (result) => {
         if (result.status !== Office.AsyncResultStatus.Succeeded) {
