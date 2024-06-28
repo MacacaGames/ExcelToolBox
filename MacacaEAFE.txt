@@ -51,7 +51,7 @@ TOJSON = LAMBDA(headers, data,
         )
       )
     ),
-    "[" & TEXTJOIN(",", TRUE, jsonArray) & "]"
+    SPLITJSON("[" & TEXTJOIN(",", TRUE, jsonArray) & "]", 32767)
   )
 );
 
