@@ -1,0 +1,179 @@
+GetDataRange = 
+/*
+Get address range from start cell to end column
+startCell: Start Cell 
+endColumn: End Column 
+*/
+LAMBDA(startCell, endColumn,
+    LET(
+        startRow, ROW(startCell),
+        startCol, COLUMN(startCell),
+        endCol, COLUMN(endColumn),
+        lastRow, LOOKUP(2, 1 / (INDEX(INDIRECT(ADDRESS(startRow, startCol) & ":" & ADDRESS(1048576, startCol)), 0)<>""), ROW(INDIRECT(ADDRESS(startRow, startCol) & ":" & ADDRESS(1048576, startCol)))),
+        ADDRESS(startRow, startCol) & ":" & ADDRESS(lastRow, endCol)
+    )
+);
+
+JSON_VALUE_TRANSFORM = LAMBDA(value,
+  IF(
+    ISERROR(LEFT(CELL("format", value), 1)),
+    QUOTE(value),  // If there's an error, quote the value as-is
+    SWITCH(
+      TRUE,
+      ISBLANK(value), "",
+      ISNUMBER(value), value,
+      HASJSONSTRUCTURE(value), value,
+      value = TRUE(), "true",
+      value = FALSE(), "false",
+      QUOTE(value)
+    )
+  )
+);
+
+TOJSON = LAMBDA(headers, data,
+  LET(
+    jsonArray,
+    BYROW(data,
+      LAMBDA(row,
+        LET(
+          jsonObject,
+          TEXTJOIN(",", TRUE, 
+            BYCOL(row, LAMBDA(value,
+              LET(
+                colIndex, XMATCH(value, row, 0, 1),
+                key, INDEX(headers, 1, colIndex),
+                jsonValue, JSON_VALUE_TRANSFORM(value),
+                QUOTE(key) & ":" & jsonValue
+              )
+            ))
+          ),
+          "{" & jsonObject & "}"
+        )
+      )
+    ),
+    "[" & TEXTJOIN(",", TRUE, jsonArray) & "]"
+  )
+);
+
+
+QUOTE = LAMBDA(text, CHAR(34) & text & CHAR(34));
+
+HASJSONSTRUCTURE = LAMBDA(text,
+    LET(
+        firstChar, LEFT(text, 1),
+        lastChar, RIGHT(text, 1),
+        AND(
+            OR(firstChar = "{", firstChar = "["),
+            OR(lastChar = "}", lastChar = "]")
+        )
+    )
+);
+
+SPLITJSON = LAMBDA(jsonString, segmentSize,
+    LET(
+        length, LEN(jsonString),
+        numSegments, CEILING(length / segmentSize, 1),
+        sequence, SEQUENCE(numSegments, 1, 0, 1),
+        segments, BYROW(sequence,
+            LAMBDA(index,
+                MID(jsonString, index * segmentSize + 1, segmentSize)
+            )
+        ),
+        TRIM(segments)  // Remove any trailing spaces from each segment
+    )
+);
+
+ToCSharpEnum = LAMBDA(items, values,
+    LET(
+        itemsCount, COUNTA(items),
+        valuesCount, COUNTA(values),
+        IF(
+            itemsCount <> valuesCount,
+            "length not equal!",
+            LET(
+                result,
+                TEXTJOIN(", " & CHAR(10), TRUE,
+                    BYROW(SEQUENCE(itemsCount), LAMBDA(rowIndex,
+                        INDEX(items, rowIndex) & " = " & INDEX(values, rowIndex)
+                    ))
+                ),
+                result
+            )
+        )
+    )
+);
+
+TOJSONARRAY = LAMBDA(range,
+  LET(
+    data, range,
+    jsonArray,
+    BYROW(data,
+      LAMBDA(row,
+        TEXTJOIN(",", TRUE,
+          BYCOL(row, LAMBDA(value,
+            JSON_VALUE_TRANSFORM(value)
+          ))
+        )
+      )
+    ),
+    "[" & TEXTJOIN(",", TRUE, jsonArray) & "]"
+  )
+);
+
+TOJSONDICTIONARY = LAMBDA(key, value,
+  LET(
+    jsonKey, QUOTE(key),
+    jsonValue, JSON_VALUE_TRANSFORM(value),
+    "{" & jsonKey & ":" & jsonValue & "}"
+  )
+);
+
+TOJSONOBJECT = LAMBDA(keysRange, valuesRange,
+    LET(
+        keys, keysRange,
+        values, valuesRange,
+        numKeys, COUNTA(keys),
+        numValues, COUNTA(values),
+        IF(
+            numKeys <> numValues,
+            "Number of keys and values do not match",
+            LET(
+                jsonPairs,
+                BYCOL(SEQUENCE(1, numKeys), LAMBDA(colIndex,
+                    LET(
+                        key, INDEX(keys, colIndex),
+                        value, INDEX(values, colIndex),
+                        jsonValue, JSON_VALUE_TRANSFORM(value),
+                        QUOTE(key) & ":" & jsonValue
+                    )
+                )),
+                "{" & TEXTJOIN(",", TRUE, jsonPairs) & "}"
+            )
+        )
+    )
+);
+
+TOISO8601 = LAMBDA(dateTime, timezone,
+    LET(
+        adjustedDateTime, dateTime - timezone/24,  // Adjust dateTime by timezone offset to convert to UTC
+        iso8601Format, "yyyy-mm-ddThh:MM:ss.000Z",  // ISO 8601 format string with milliseconds and UTC indicator
+        iso8601DateTime, TEXT(adjustedDateTime, iso8601Format),  // Convert adjusted dateTime to ISO 8601 formatted date and time
+        iso8601DateTime  // Return the ISO 8601 formatted string ending with .000Z in UTC
+    )
+);
+
+CHECKINVALIDDATA = LAMBDA(range,
+  TEXTJOIN(", ", TRUE,
+    IF(ISBLANK(range), "Empty cells: " & ADDRESS(ROW(range), COLUMN(range)),
+      IF(ISNUMBER(FIND(" ", range)), "Cells containing whitespace: " & ADDRESS(ROW(range), COLUMN(range)), "")
+    )
+  )
+);
+
+/* NoData define */
+NoData_Number = LAMBDA("NoData_Number");
+NoData_Text = LAMBDA("NoData_Text");
+NoData_ENUM = LAMBDA("NoData_ENUM");
+NoData_Bool = LAMBDA("NoData_Bool");
+NoData_Json = LAMBDA("NoData_Json");
+NoData_Array = LAMBDA("NoData_Array");
