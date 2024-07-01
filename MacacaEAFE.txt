@@ -51,7 +51,7 @@ TOJSON = LAMBDA(headers, data,
         )
       )
     ),
-    SPLITJSON("[" & TEXTJOIN(",", TRUE, jsonArray) & "]", 32767)
+    "[" & TEXTJOIN(",", TRUE, jsonArray) & "]"
   )
 );
 
@@ -66,20 +66,6 @@ HASJSONSTRUCTURE = LAMBDA(text,
             OR(firstChar = "{", firstChar = "["),
             OR(lastChar = "}", lastChar = "]")
         )
-    )
-);
-
-SPLITJSON = LAMBDA(jsonString, segmentSize,
-    LET(
-        length, LEN(jsonString),
-        numSegments, CEILING(length / segmentSize, 1),
-        sequence, SEQUENCE(numSegments, 1, 0, 1),
-        segments, BYROW(sequence,
-            LAMBDA(index,
-                MID(jsonString, index * segmentSize + 1, segmentSize)
-            )
-        ),
-        TRIM(segments)  // Remove any trailing spaces from each segment
     )
 );
 
