@@ -14,7 +14,12 @@ LAMBDA(startCell, endColumn,
     )
 );
 
-JSON_VALUE_TRANSFORM = LAMBDA(value,
+JSON_VALUE_TRANSFORM = 
+/*
+Transform a cell value into its JSON representation
+value: Cell value to transform
+*/
+LAMBDA(value,
   IF(
     ISERROR(LEFT(CELL("format", value), 1)),
     QUOTE(value),  // If there's an error, quote the value as-is
@@ -36,8 +41,13 @@ JSON_VALUE_TRANSFORM = LAMBDA(value,
   )
 );
 
-
-TOJSON = LAMBDA(headers, data,
+TOJSON = 
+/*
+Convert table headers and data into a JSON array of objects
+headers: Table headers
+data: Table data
+*/
+LAMBDA(headers, data,
   LET(
     jsonArray,
     BYROW(data,
@@ -62,10 +72,19 @@ TOJSON = LAMBDA(headers, data,
   )
 );
 
+QUOTE = 
+/*
+Add double quotes around a text value
+text: Text value to quote
+*/
+LAMBDA(text, CHAR(34) & text & CHAR(34));
 
-QUOTE = LAMBDA(text, CHAR(34) & text & CHAR(34));
-
-HASJSONSTRUCTURE = LAMBDA(text,
+HASJSONSTRUCTURE = 
+/*
+Check if a text value has JSON structure
+text: Text value to check
+*/
+LAMBDA(text,
     LET(
         firstChar, LEFT(text, 1),
         lastChar, RIGHT(text, 1),
@@ -76,7 +95,13 @@ HASJSONSTRUCTURE = LAMBDA(text,
     )
 );
 
-ToCSharpEnum = LAMBDA(items, values,
+ToCSharpEnum = 
+/*
+Convert two lists into a C# enum definition
+items: List of enum names
+values: List of enum values
+*/
+LAMBDA(items, values,
     LET(
         itemsCount, COUNTA(items),
         valuesCount, COUNTA(values),
@@ -96,7 +121,12 @@ ToCSharpEnum = LAMBDA(items, values,
     )
 );
 
-TOJSONARRAY = LAMBDA(range,
+TOJSONARRAY = 
+/*
+Convert a range of values into a JSON array
+range: Range of values to convert
+*/
+LAMBDA(range,
   LET(
     data, range,
     jsonArray,
@@ -113,7 +143,13 @@ TOJSONARRAY = LAMBDA(range,
   )
 );
 
-TOJSONDICTIONARY = LAMBDA(key, value,
+TOJSONDICTIONARY = 
+/*
+Convert a key-value pair into a JSON dictionary
+key: Dictionary key
+value: Dictionary value
+*/
+LAMBDA(key, value,
   LET(
     jsonKey, QUOTE(key),
     jsonValue, JSON_VALUE_TRANSFORM(value),
@@ -121,7 +157,13 @@ TOJSONDICTIONARY = LAMBDA(key, value,
   )
 );
 
-TOJSONOBJECT = LAMBDA(keysRange, valuesRange,
+TOJSONOBJECT = 
+/*
+Convert two ranges of keys and values into a JSON object
+keysRange: Range of keys
+valuesRange: Range of values
+*/
+LAMBDA(keysRange, valuesRange,
     LET(
         keys, keysRange,
         values, valuesRange,
@@ -146,7 +188,13 @@ TOJSONOBJECT = LAMBDA(keysRange, valuesRange,
     )
 );
 
-TOISO8601 = LAMBDA(dateTime, timezone,
+TOISO8601 = 
+/*
+Convert a datetime value into ISO 8601 format
+dateTime: Datetime value
+timezone: Timezone offset in hours
+*/
+LAMBDA(dateTime, timezone,
     LET(
         adjustedDateTime, dateTime - timezone/24,  // Adjust dateTime by timezone offset to convert to UTC
         iso8601Format, "yyyy-mm-ddThh:MM:ss.000Z",  // ISO 8601 format string with milliseconds and UTC indicator
@@ -155,7 +203,12 @@ TOISO8601 = LAMBDA(dateTime, timezone,
     )
 );
 
-CHECKINVALIDDATA = LAMBDA(range,
+CHECKINVALIDDATA = 
+/*
+Check a range for invalid data (empty cells or cells containing whitespace)
+range: Range of data to check
+*/
+LAMBDA(range,
   LET(
     invalidCells,
     TEXTJOIN(", ", TRUE,
