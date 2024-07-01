@@ -20,15 +20,22 @@ JSON_VALUE_TRANSFORM = LAMBDA(value,
     QUOTE(value),  // If there's an error, quote the value as-is
     SWITCH(
       TRUE,
-      ISBLANK(value), "",
+      ISBLANK(value), QUOTE(""),
       ISNUMBER(value), value,
       HASJSONSTRUCTURE(value), value,
       value = TRUE(), "true",
       value = FALSE(), "false",
+      value = NoData_Number(), "0",
+      value = NoData_ENUM(), "0",
+      value = NoData_Bool(), "false",
+      value = NoData_Json(), "{}",
+      value = NoData_Array(), "[]",
+      value = NoData_Text(), QUOTE(""),
       QUOTE(value)
     )
   )
 );
+
 
 TOJSON = LAMBDA(headers, data,
   LET(
