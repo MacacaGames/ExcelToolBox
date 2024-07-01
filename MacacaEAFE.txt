@@ -156,10 +156,14 @@ TOISO8601 = LAMBDA(dateTime, timezone,
 );
 
 CHECKINVALIDDATA = LAMBDA(range,
-  TEXTJOIN(", ", TRUE,
-    IF(ISBLANK(range), "Empty cells: " & ADDRESS(ROW(range), COLUMN(range)),
-      IF(ISNUMBER(FIND(" ", range)), "Cells containing whitespace: " & ADDRESS(ROW(range), COLUMN(range)), "")
-    )
+  LET(
+    invalidCells,
+    TEXTJOIN(", ", TRUE,
+      IF(ISBLANK(range), "Empty cells: " & ADDRESS(ROW(range), COLUMN(range)),
+        IF(ISNUMBER(FIND(" ", range)), "Cells containing whitespace: " & ADDRESS(ROW(range), COLUMN(range)), "")
+      )
+    ),
+    IF(invalidCells = "", "Data valid!", invalidCells)
   )
 );
 
