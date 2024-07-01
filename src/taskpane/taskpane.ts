@@ -10,13 +10,13 @@ Office.onReady(() => {
   document.getElementById("sideload-msg").style.display = "none";
   document.getElementById("app-body").style.display = "flex";
   document.getElementById("selectRangeToJsonButton").onclick = selectRangeToJson;
-  document.getElementById("selectWholeSheetToJsonButton").onclick = selectWholeSheetToJson;
-
-  document.getElementById("insertNoDataIntButton").onclick = insertNoDataInt;
-  document.getElementById("insertNoDataEnumButton").onclick = insertNoDataEnum;
-  document.getElementById("insertNoDataBoolButton").onclick = insertNoDataBool;
-  document.getElementById("insertNoDataArrayButton").onclick = insertNoDataArray;
-  document.getElementById("insertNoDataTextButton").onclick = insertNoDataText;
+  // document.getElementById("selectWholeSheetToJsonButton").onclick = selectWholeSheetToJson;
+  //
+  // document.getElementById("insertNoDataIntButton").onclick = insertNoDataInt;
+  // document.getElementById("insertNoDataEnumButton").onclick = insertNoDataEnum;
+  // document.getElementById("insertNoDataBoolButton").onclick = insertNoDataBool;
+  // document.getElementById("insertNoDataArrayButton").onclick = insertNoDataArray;
+  // document.getElementById("insertNoDataTextButton").onclick = insertNoDataText;
 });
 
 async function selectRangeToJson() {
