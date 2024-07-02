@@ -20,9 +20,6 @@ Transform a cell value into its JSON representation
 value: Cell value to transform
 */
 LAMBDA(value,
-  IF(
-    ISERROR(LEFT(CELL("format", value), 1)),
-    QUOTE(value),  // If there's an error, quote the value as-is
     SWITCH(
       TRUE,
       ISBLANK(value), QUOTE(""),
@@ -38,7 +35,6 @@ LAMBDA(value,
       value = NoData_Text(), QUOTE(""),
       QUOTE(value)
     )
-  )
 );
 
 TOJSON = 
